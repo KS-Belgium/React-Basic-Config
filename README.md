@@ -4,10 +4,10 @@ Il a pour but d'être pull pour vous aider à pré-configurer des projets React.
 
 **RAPPEL**\
 Typescript est de plus en plus adopté et préférer, il a également pour avantage de vous laisser utiliser des fichiers '.js' et '.jsx' et avoir un code hybride.\
-La pratique n'est pas vraiment recommandé mais ça peut être pratique, malgré l'utilisation du JS certains avantages donné par la création d'un projet Typescript resteront.\
+La pratique n'est pas vraiment recommandé mais ça peut être pratique, malgré l'utilisation du JS certains avantages donné par la création d'un projet Typescript resteront.
 
 **ATTENTION**\
-Différente branche seront créer avec différentes configuration (en terme de packages). Les différences seront expliquée pour chaque configuration.\
+Différente branche seront créer avec différentes configuration (en terme de packages). Les différences seront expliquée pour chaque configuration.
 
 ## Configuration de base
 ![image](https://github.com/user-attachments/assets/d61f4352-206b-4974-ac1f-b57035be557e)
