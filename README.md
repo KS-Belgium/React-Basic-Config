@@ -16,7 +16,7 @@ Différente branche seront créer avec différentes configuration (en terme de p
 Contient les dossiers/fichiers des images nécessaire pour le projet
 
 - src:\
-Code source du projet séparé en différent dossiers. **NE PAS MODIFIER LE 'main.tsx'** sauf si l'encadrement de l'App tout entière dans un *provider* l'exige, si possible préférer modifier 'App.tsx'\
+Code source du projet séparé en différent dossiers. **NE PAS MODIFIER LE 'main.tsx'** sauf si l'encadrement de l'App tout entière dans un *provider* l'exige, si possible préférer modifier 'App.tsx'
 
 ## Description du dossier *src*
 ### Compoonents
@@ -95,7 +95,7 @@ l'*AppRouter* quant à lui va contenir l'ensemble des routes de notre projet, av
 ### Models
 Dossier qui va comporter l'ensemble des scripts en lien avec le projet. Il a pour rôle de séparé et grouper les scripts selon leur utilité du reste du code en lien avec les composant.\
 Typiquement, si vous utilisez une API, par exemple de FireBase et une faite par vous même, il est judicieux de créer 2 fichiers de scripts qui vont reprendre toute les fonctions en lien avec les appels d'API.\
-Un autre avantage est de garder les code des composant plus simple et clair car la logique d'intéraction avec les API sera illustré par un appel de fonction d'un fichier externe, seul le résultat et l'appel sera traité dans le composant.\
+Un autre avantage est de garder les code des composant plus simple et clair car la logique d'intéraction avec les API sera illustré par un appel de fonction d'un fichier externe, seul le résultat et l'appel sera traité dans le composant.
 
 **REMARQUE**\
 Il est aussi possible de faire des objets (statique ou non) et les exporter. Seul inconvéniant c'est que si vous avez toutes vos méthode dans la même class, une page comme *Login* va importer la class **en entier** alors qu'elle n'utilisera que les méthodes de login.\
@@ -187,7 +187,7 @@ function Home() {
 export default Home;
 ```
 ### Styles 
-Globalement ce fichier comportera 2 dossiers :\
+Globalement ce fichier comportera 2 dossiers :
 - components:\
 Style pour les composants
 - pages:\
