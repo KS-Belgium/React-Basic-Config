@@ -19,7 +19,7 @@ Contient les dossiers/fichiers des images nécessaire pour le projet
 Code source du projet séparé en différent dossiers. **NE PAS MODIFIER LE 'main.tsx'** sauf si l'encadrement de l'App tout entière dans un *provider* l'exige, si possible préférer modifier 'App.tsx'
 
 ## Description du dossier *src*
-### Compoonents
+### Components
 Exemple du composant *NavBar*: 
 ```typescript
 import logo from "/logo/vite.svg";
