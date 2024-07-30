@@ -5,6 +5,10 @@
   box-sizing: border-box;
 }
 
+body{
+  overflow-x: hidden;
+}
+
 // Default alert colors
 $theme-colors: (
         "success": #28a745,

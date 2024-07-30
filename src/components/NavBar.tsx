@@ -1,5 +1,6 @@
 import logo from "/logo/vite.svg";
 import "../styles/components/Style-NavBar.scss";
+import {ConnectButton} from "@rainbow-me/rainbowkit";
 
 function NavBar() {
   return (
@@ -16,6 +17,16 @@ function NavBar() {
           <a href="/about" className="navbar-item">
             About
           </a>
+          <ConnectButton
+            accountStatus={{
+              smallScreen: 'avatar',
+              largeScreen: 'full',
+            }}
+            chainStatus={{
+              smallScreen: 'none',
+              largeScreen: 'full'
+            }}
+          />
         </div>
     </nav>
   );

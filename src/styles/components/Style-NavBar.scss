@@ -17,7 +17,15 @@
     font-weight: bold;
     color: $text-color;
   }
+  //.navbar-brand{
+  //  position: fixed;
+  //}
+
   .navbar-menu{
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 2rem;
     a{
         color: $text-color;
         text-decoration: none;

@@ -1,29 +1,214 @@
-# React-Basic-Config
+# React - Wagmi Rainbow Viem - Config
 Projet vide pré-configuré en utilisant **React + TypeScript + Vite + SCSS**.\
-Il a pour but d'être pull pour vous aider à pré-configurer des projets React.
+3 modules ont été ajouté pour permettre des connexions de portefeuille (tel que Metamask).
 
-**RAPPEL**\
-Typescript est de plus en plus adopté et préférer, il a également pour avantage de vous laisser utiliser des fichiers '.js' et '.jsx' et avoir un code hybride.\
-La pratique n'est pas vraiment recommandé mais ça peut être pratique, malgré l'utilisation du JS certains avantages donné par la création d'un projet Typescript resteront.
+**Modules ajoutés via cette commande**:
+```
+npm install @rainbow-me/rainbowkit wagmi viem@2.x @tanstack/react-query
+```
+
+**Documentation des modules**\
+Ici seul les installations manuelles ont été faites et les configurations de bases ont été ajouté.\
+Il est recommandé de lire la documentation et de comprendre avant de taper les lignes de commandes (même celles d'installation).
+- [Wagmi](https://wagmi.sh/core/getting-started)
+- [Rainbow](https://www.rainbowkit.com/docs/installation)
+- [Viem](https://viem.sh/docs/getting-started)
+
+*Note*:\
+Viem est utilisé par les 2 autres modules, sa documentation est donc moins importante à lire car elle est déjà en partie incluse dans les 2 autres documentations.
+
+### App
+Ce qu'est devenu le fichier *App.tsx*: 
+```typescript
+import AppRouter from "./AppRouter.tsx";
+import {connectorsForWallets, RainbowKitProvider} from "@rainbow-me/rainbowkit";
+import {QueryClient, QueryClientProvider} from "@tanstack/react-query";
+import {createConfig, http, WagmiProvider} from "wagmi";
+import {celo, celoAlfajores, rootstockTestnet, zircuitTestnet} from "wagmi/chains";
+import {injectedWallet, metaMaskWallet, safeWallet, walletConnectWallet} from "@rainbow-me/rainbowkit/wallets";
+
+
+const connectors = connectorsForWallets(
+    [
+        {
+            groupName: "Suggested",
+            wallets: [injectedWallet, walletConnectWallet, metaMaskWallet, safeWallet],
+        },
+    ],
+    {
+        appName: "NAME",
+        projectId: "ID",
+    },
+);
+
+const config = createConfig({
+    connectors,
+    chains: [celo, celoAlfajores, rootstockTestnet, zircuitTestnet],
+    transports: {
+        [celo.id]: http(),
+        [celoAlfajores.id]: http(),
+        [rootstockTestnet.id]: http(),
+        [zircuitTestnet.id]: http(),
+    },
+});
+
+const queryClient = new QueryClient();
+
+function App() {
+    return (
+        <WagmiProvider config={config}>
+            <QueryClientProvider client={queryClient}>
+                <RainbowKitProvider>
+                    <AppRouter/>
+                </RainbowKitProvider>
+            </QueryClientProvider>
+        </WagmiProvider>
+    )
+}
+
+export default App
+```
+*Note*:\
+Il est vivement recommandé de garder cette structure de code pour la configuration des modules.\
+Pour chaque projet et lors des modification sur un projet en cours il suffit d'aller modifier les configurations des 2 variables *connectors* et *config*.
+
+- Wallets:\
+Les wallets sont les différents types de portefeuilles qui peuvent être utilisés pour se connecter (injected, walletConnect, metaMask, safeWallet).\
+Le *injectedWallet* est le portefeuille injecté par défaut par le navigateur de l'utilisateur, il est recommandé de le laisser.\
+Il est possible aussi de les grouper sous un nom de groupe, ici un seul groupe est créé avec les wallets recommandés.\
+
+
+- Networks:\
+Ajouter des networks se fait en important les réseaux (ici via "wagmi/chains") et en les ajoutant dans le tableau *chains* de la configuration.\
+Ne pas oublier d'ensuite d'ajouter leur id dans le tableau *transports* avec le type de transport (ici *http*, attention ce dernier type est un objet provenant de *wagi*).
 
 **ATTENTION**\
-Différente branche seront créer avec différentes configuration (en terme de packages). Les différences seront expliquée pour chaque configuration.
+Pour l'*appName* et *projectId* il est nécessaire de les remplacer par les valeurs qui vous sont attribuées via ce [site web (walletconnect)](https://cloud.walletconnect.com/sign-in).
 
-## Configuration de base
-![image](https://github.com/user-attachments/assets/d61f4352-206b-4974-ac1f-b57035be557e)
+### Wallet Connect
+On va simplement créer une page de connection de portefeuille, dès qu'un portefeuille est connecté, on redirige vers la page d'accueil.\
+On remarque aussi que l'utilisation du provider *WagmiProvider* est nécessaire pour utiliser les hooks de wagmi (ici *useAccount*).
+Il nous permet de vérifier avec une simple condition si un portefeuille est connecté ou non afin de le rediriger vers la page d'accueil.
 
-- public:\
-Contient les dossiers/fichiers des images nécessaire pour le projet
+Fichier *WalletCo.tsx*:
+```typescript
+import React, { useEffect } from "react";
+import { useAccount } from 'wagmi';
+import { useNavigate } from 'react-router-dom';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import '@rainbow-me/rainbowkit/styles.css';
 
-- src:\
-Code source du projet séparé en différent dossiers. **NE PAS MODIFIER LE 'main.tsx'** sauf si l'encadrement de l'App tout entière dans un *provider* l'exige, si possible préférer modifier 'App.tsx'
+const WalletCo: React.FC = () => {
+    const { isConnected } = useAccount();
+    const navigate = useNavigate();
 
-## Description du dossier *src*
-### Components
-Exemple du composant *NavBar*: 
+    useEffect(() => {
+        isConnected && navigate('/home');
+    }, [isConnected, navigate]);
+
+    return (
+        <div>
+            <h1>Wallet Connection</h1>
+    <ConnectButton />
+    </div>
+);
+};
+
+export default WalletCo;
+```
+
+
+### Home
+Ce qu'est devenu le fichier *Home.tsx*:
+```typescript
+// Import components
+import NavBar from "../components/NavBar.tsx";
+import Footer from "../components/Footer.tsx";
+
+// Import the styles
+import "../styles/pages/Style-HomePage.scss";
+
+// Import the function from the model
+import {displayAlertBoxes} from "../models/display-alert-boxes.ts";
+import {useAccount} from "wagmi";
+import {useEffect} from "react";
+import {useNavigate} from "react-router-dom";
+
+function Home() {
+    // Get the connected account and network information
+    const { address, isConnected } = useAccount();
+    const navigate = useNavigate();
+
+    function displayAlertBox() {
+        const checkedRadioButton: HTMLInputElement | null = document.querySelector('input[type="radio"]:checked');
+        checkedRadioButton ? displayAlertBoxes(checkedRadioButton.value) : alert('No radio button selected');
+    }
+
+    function hideAlertBox() {
+        const existingAlertBox = document.getElementById('alert-box');
+        if (existingAlertBox) {
+            existingAlertBox.remove();
+        }
+    }
+
+    useEffect(() => {
+        !isConnected && navigate('/');
+    }, [isConnected, navigate]);
+
+    return (
+        <>
+            <NavBar/>
+
+
+        <div className="container">
+        <h1 className="title">Home</h1>
+            <h3>Wallet Address: {address ? address : 'Not connected'}</h3>
+    <div className="content">
+    <div className="radio-group">
+    <div className="field">
+    <input type="radio" id="success" name="alert" value="success"/>
+    <label htmlFor="success">Success</label>
+        </div>
+        <div className="field">
+    <input type="radio" id="info" name="alert" value="info"/>
+    <label htmlFor="info">Info</label>
+        </div>
+        <div className="field">
+    <input type="radio" id="warning" name="alert" value="warning"/>
+    <label htmlFor="warning">Warning</label>
+        </div>
+        <div className="field">
+    <input type="radio" id="danger" name="alert" value="danger"/>
+    <label htmlFor="danger">Danger</label>
+        </div>
+        </div>
+        <div className="button-group">
+    <button className="button" onClick={displayAlertBox}>Show Alert</button>
+    <button className="button" onClick={hideAlertBox}>Hide Alert</button>
+    </div>
+    </div>
+    </div>
+
+    <Footer/>
+    </>
+);
+}
+
+export default Home;
+```
+*Note*:\
+Le *useEffect* permet de rediriger l'utilisateur vers la page de connection de portefeuille si il n'est pas connecté ou décidé de se déconnecter.
+Pareillement ici, le hook *useAccount* permet de récupérer les informations de l'utilisateur connecté, ici on va juste vérifier l'état de connection pour rediriger l'utilisateur.
+On a également afficher l'adresse du portefeuille connecté via la variable *address*, elle aussi récupérée via le hook *useAccount*.
+
+### NavBar
+On va simplement ajouter un bouton de connection de portefeuille dans la barre de navigation et lui ajouter des propriétés pour qu'il s'affiche différemment en fonction de la taille de l'écran.
+
+Ce qu'est devenu le fichier *NavBar.tsx*:
 ```typescript
 import logo from "/logo/vite.svg";
 import "../styles/components/Style-NavBar.scss";
+import {ConnectButton} from "@rainbow-me/rainbowkit";
 
 function NavBar() {
   return (
@@ -40,6 +225,18 @@ function NavBar() {
           <a href="/about" className="navbar-item">
             About
           </a>
+        
+          // Add the ConnectButton for the wallet
+          <ConnectButton
+            accountStatus={{
+              smallScreen: 'avatar',
+              largeScreen: 'full',
+            }}
+            chainStatus={{
+              smallScreen: 'none',
+              largeScreen: 'full'
+            }}
+          />
         </div>
     </nav>
   );
@@ -47,152 +244,3 @@ function NavBar() {
 
 export default NavBar;
 ```
-Typiquement ce fichier condiendra uniquement des composant qui seront utilisé dans les **pages**.
-
-*A Noter:*
-```typescript
-import logo from "/logo/vite.svg";
-```
-Le chemin correspond à une image dans le dossier "public/logo/vite.svg". Par défaut toute les ressources graphique seront recherchée dans le dossier *public* c'est un comportement natif d'un projet créer avec Vite.
-
-### Config
-Ce dossier à pour but de contenir les diverses éléments en lien avec la structure du projet.\
-Exemple de l'*App*:
-```typescript
-import AppRouter from "./AppRouter.tsx";
-
-function App() {
-  return (
-      <AppRouter/>
-  )
-}
-
-export default App
-```
-Exemple de l'*AppRouter*:
-```typescript
-import {BrowserRouter, Route, Routes} from 'react-router-dom';
-import Home from "../pages/Home.tsx";
-import About from "../pages/About.tsx";
-
-function AppRouter() {
-    return (
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<Home />} />
-                <Route path="/about" element={<About />} />
-            </Routes>
-        </BrowserRouter>
-    );
-}
-
-export default AppRouter;
-```
-
-Il est volontaire que l'*App* ne servent qu'à retourné l'*AppRouter*. Le but est de laissé de la place pour d'éventuelles autre configuration globale du projets (provider, cookies, tokens, constantes, setup de plugin, ...).\
-l'*AppRouter* quant à lui va contenir l'ensemble des routes de notre projet, avoir ce composant de manière distincte permet de centraliser l'ensemble de toute les routes de notre projet, facilter la gesiton des routes privées, etc...
-
-### Models
-Dossier qui va comporter l'ensemble des scripts en lien avec le projet. Il a pour rôle de séparé et grouper les scripts selon leur utilité du reste du code en lien avec les composant.\
-Typiquement, si vous utilisez une API, par exemple de FireBase et une faite par vous même, il est judicieux de créer 2 fichiers de scripts qui vont reprendre toute les fonctions en lien avec les appels d'API.\
-Un autre avantage est de garder les code des composant plus simple et clair car la logique d'intéraction avec les API sera illustré par un appel de fonction d'un fichier externe, seul le résultat et l'appel sera traité dans le composant.
-
-**REMARQUE**\
-Il est aussi possible de faire des objets (statique ou non) et les exporter. Seul inconvéniant c'est que si vous avez toutes vos méthode dans la même class, une page comme *Login* va importer la class **en entier** alors qu'elle n'utilisera que les méthodes de login.\
-Exemple de *display-alert-boxes*:
-```typescript
-export function displayAlertBoxes(alertType: string){
-    if (!['success', 'info', 'warning', 'danger'].includes(alertType)) {
-        alert('Invalid alert type');
-        return;
-    }
-
-    const existingAlertBox = document.getElementById('alert-box');
-    if (existingAlertBox) {
-        existingAlertBox.remove();
-    }
-
-    const alertBox = document.createElement('div');
-    alertBox.className = alertType;
-    alertBox.id = 'alert-box';
-    alertBox.textContent = `This is a ${alertType} alert box!`;
-    document.getElementsByClassName('content')[0].appendChild(alertBox);
-}
-```
-### Pages
-Contient l'ensemble des **pages** utilisant les *composant*. Ceci est le composant principal qui est appellé par le Router selon l'URL.\
-Exemple d'*Home*:
-```typescript
-// Import components
-import NavBar from "../components/NavBar.tsx";
-import Footer from "../components/Footer.tsx";
-
-// Import the styles
-import "../styles/pages/Style-HomePage.scss";
-
-// Import the function from the model
-import {displayAlertBoxes} from "../models/display-alert-boxes.ts";
-
-function Home() {
-
-    function displayAlertBox() {
-        const checkedRadioButton: HTMLInputElement | null = document.querySelector('input[type="radio"]:checked');
-        checkedRadioButton ? displayAlertBoxes(checkedRadioButton.value) : alert('No radio button selected');
-    }
-
-    function hideAlertBox() {
-        const existingAlertBox = document.getElementById('alert-box');
-        if (existingAlertBox) {
-            existingAlertBox.remove();
-        }
-    }
-
-    return (
-        <>
-            <NavBar/>
-
-            <div className="container">
-                <h1 className="title">Home</h1>
-                <div className="content">
-                    <div className="radio-group">
-                        <div className="field">
-                            <input type="radio" id="success" name="alert" value="success"/>
-                            <label htmlFor="success">Success</label>
-                        </div>
-                        <div className="field">
-                            <input type="radio" id="info" name="alert" value="info"/>
-                            <label htmlFor="info">Info</label>
-                        </div>
-                        <div className="field">
-                            <input type="radio" id="warning" name="alert" value="warning"/>
-                            <label htmlFor="warning">Warning</label>
-                        </div>
-                        <div className="field">
-                            <input type="radio" id="danger" name="alert" value="danger"/>
-                            <label htmlFor="danger">Danger</label>
-                        </div>
-                    </div>
-                    <div className="button-group">
-                        <button className="button" onClick={displayAlertBox}>Show Alert</button>
-                        <button className="button" onClick={hideAlertBox}>Hide Alert</button>
-                    </div>
-                </div>
-            </div>
-
-            <Footer/>
-        </>
-    );
-}
-
-export default Home;
-```
-### Styles 
-Globalement ce fichier comportera 2 dossiers :
-- components:\
-Style pour les composants
-- pages:\
-Style pour les pages
-
-Ici le SCSS a été utilisé, donc un fichier 'brandchart.scss' a été créer (incomplet) mais permet de stocker les variables/constantes/fonctions/... en lien avec le design des pages du projet, **Ce fichier est importer dans les autres FEUILLES DE STYLES**.
-Quelques petits exemples de fonctionnalités un peu plus avancées néanmoins pratique ont été ajouté a des fin démonstrative.
-

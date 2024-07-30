@@ -7,8 +7,14 @@ import "../styles/pages/Style-HomePage.scss";
 
 // Import the function from the model
 import {displayAlertBoxes} from "../models/display-alert-boxes.ts";
+import {useAccount} from "wagmi";
+import {useEffect} from "react";
+import {useNavigate} from "react-router-dom";
 
 function Home() {
+    // Get the connected account and network information
+    const { address, isConnected } = useAccount();
+    const navigate = useNavigate();
 
     function displayAlertBox() {
         const checkedRadioButton: HTMLInputElement | null = document.querySelector('input[type="radio"]:checked');
@@ -22,12 +28,18 @@ function Home() {
         }
     }
 
+    useEffect(() => {
+        !isConnected && navigate('/');
+    }, [isConnected, navigate]);
+
     return (
         <>
             <NavBar/>
 
+
             <div className="container">
                 <h1 className="title">Home</h1>
+                <h3>Wallet Address: {address ? address : 'Not connected'}</h3>
                 <div className="content">
                     <div className="radio-group">
                         <div className="field">
